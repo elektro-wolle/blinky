@@ -1,0 +1,84 @@
+= Blink ICE40-HX8k Breakout Board with OpenSource FPGA-Toolchain on MacOS
+
+== Installation Toolchain
+
+Prerequisites: Installed link:https://brew.sh/[Homebrew].
+
+=== java/sbt
+
+Java 11 is necessary, install with link:https://sdkman.io/[sdkman]
+
+[source,bash]
+----
+# install jabba
+curl -s "https://get.sdkman.io" | zsh
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+# install openjdk 11
+sdk install java 11.0.2-open
+sdk use java 11.0.2-open
+sdk install sbt
+----
+
+
+=== yosys
+
+Detailed instructions: link:https://mcmayer.net/first-steps-with-the-icestorm-toolchain/
+
+[source,bash]
+----
+brew install bison gawk pkg-config git mercurial graphviz python python3 libftdi0 libffi yosys icarus-verilog
+----
+
+=== icestorm
+
+[source,bash]
+----
+cd /tmp
+git clone https://github.com/YosysHQ/icestorm
+cd icestorm
+PYTHONPATH=`brew --prefix`/lib/python$PYTHONVERSION/site-packages/ make -j
+# currently the installer is broken under MacOS: https://github.com/YosysHQ/icestorm/issues/255
+perl -p -i -e "s#-i#-i'' -e#g" icebox/Makefile
+make install DESTDIR=$HOME/.local PREFIX=
+----
+
+=== arachne-pnr
+
+[source,bash]
+----
+cd /tmp
+git clone https://github.com/YosysHQ/arachne-pnr
+cd arachne-pnr
+make PREFIX=$HOME/.local   -j
+make PREFIX=$HOME/.local install
+----
+
+
+=== netlistsvg (optional)
+
+For displaying the rtl as svg, npm/node is needed. Install via: link:https://nodejs.org/en/[node].
+Install `netlistsvg` with:
+
+[source,bash]
+----
+npm install -f netlistsvg
+----
+
+== Build
+
+[source,bash]
+----
+# Convert Scala to Verilog
+sbt synth
+
+# Visualize RTL
+sbt svg
+# view the generated svg with
+open target/Blink.svg
+
+# Programm to ice-board (SRAM)
+sbt prog
+
+# Programm to ice-board (Flash)
+sbt progFlash
+----

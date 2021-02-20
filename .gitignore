@@ -1,0 +1,8 @@
+/project/project/
+/project/target/
+/target/
+/*.ipr
+/*.iws
+/.idea/
+/*.bin
+/*.v
